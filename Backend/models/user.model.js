@@ -48,7 +48,7 @@ const UserSchema = new mongoose.Schema({
     website: {
         type: String
     },
-    AccountPrivacy: {
+    accountPrivacy: {
         type: String,
         enum: ['public', 'private'],
         default: 'public'

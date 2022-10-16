@@ -1,5 +1,6 @@
 const map_post_req = require("../../helpers/map_post_req");
 const postsModel = require("../../models/posts.model");
+const userModel = require("../../models/user.model");
 
 function createPost(req,res,next){
     const data = req.body;
@@ -17,6 +18,7 @@ function createPost(req,res,next){
     const newPost = new postsModel({});
     map_post_req(newPost,data);
     newPost.user = req.user._id;
+    newPost.userPrivacy = req.user.accountPrivacy;
     newPost.save()
         .then(function(saved){
             res.json(saved)
@@ -60,7 +62,58 @@ function update(req,res,next){
 
 }
 
+function getPostFromPublicUser(req,res,next){
+    postsModel.find({}, function(err,posts){
+        if(err){
+            return next(err)
+        }
+        if(!posts){
+            res.json({
+                msg: 'posts not found',
+                status: 404
+            })
+        }
+        let publicPosts = [];
+        posts.forEach(post => {
+            if(post.userPrivacy == 'public'){
+                publicPosts.push(post)
+            }
+        });
+        res.json(publicPosts)
+    })
+}
+
+function removePost(req,res,next){
+    postsModel.findById(req.params.id, function(err,post){
+        if(err){
+            return next(err);
+        }
+        if(!post){
+            return next({
+                msg: 'Post not found',
+                status: 404
+            })
+        }
+        // Post found
+        if(post.user != req.user.id){
+            res.json({
+               msg: 'only original creator can delete their post',
+               status: 401
+            })
+        }else{
+            post.remove(function(err,removed){
+                if(err){
+                    return next(err)
+                }
+                res.json(removed)
+            })  
+        }     
+    })
+}
+
 module.exports = {
     createPost,
     update,
+    getPostFromPublicUser,
+    removePost,
 }

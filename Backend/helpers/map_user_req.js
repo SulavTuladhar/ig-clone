@@ -26,6 +26,8 @@ module.exports = function(user,userData){
         user.profilePicture = userData.image;
     if(userData.website)
         user.website = userData.website;
+    if(userData.accountPrivacy)
+        user.accountPrivacy = userData.accountPrivacy;
     
     return user; 
 }

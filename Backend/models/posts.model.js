@@ -13,6 +13,9 @@ const PostSchema = new mongoose.Schema({
         type: String,
         enum: ['public', 'private'],
         default: 'public'
+    },
+    userPrivacy:{
+        type: String
     }
 })
 module.exports = mongoose.model('Post', PostSchema);
