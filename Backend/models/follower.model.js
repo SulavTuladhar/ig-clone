@@ -6,7 +6,7 @@ const FollowerSchema = new mongoose.Schema({
         ref: 'User',
         unique: true
     },
-    folowers: [
+    followers: [
         {
             user: {
                 type: mongoose.Schema.Types.ObjectId,

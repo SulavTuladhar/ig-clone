@@ -18,6 +18,9 @@ function createPost(req,res,next){
     const newPost = new postsModel({});
     map_post_req(newPost,data);
     newPost.user = req.user._id;
+    if(data.privacy === ''){
+        newPost.privacy = req.user.accountPrivacy;
+    }
     newPost.userPrivacy = req.user.accountPrivacy;
     newPost.save()
         .then(function(saved){
@@ -44,7 +47,7 @@ function update(req,res,next){
 
         // Post found
         if(post.user != req.user.id){
-            res.json({
+            return next({
                msg: 'only original owener can update their post',
                status: 401
             })
@@ -68,7 +71,7 @@ function getPostFromPublicUser(req,res,next){
             return next(err)
         }
         if(!posts){
-            res.json({
+            return next({
                 msg: 'posts not found',
                 status: 404
             })
@@ -96,7 +99,7 @@ function removePost(req,res,next){
         }
         // Post found
         if(post.user != req.user.id){
-            res.json({
+            return next({
                msg: 'only original creator can delete their post',
                status: 401
             })
