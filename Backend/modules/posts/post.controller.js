@@ -1,4 +1,5 @@
 const map_post_req = require("../../helpers/map_post_req");
+const followerModel = require("../../models/follower.model");
 const postsModel = require("../../models/posts.model");
 const userModel = require("../../models/user.model");
 
@@ -86,6 +87,46 @@ function getPostFromPublicUser(req,res,next){
     })
 }
 
+function getPostFromFollowingUser(req,res,next){
+        postsModel.find({}, function(err,post){
+            if(err){
+                return next(err)
+            }
+            if(!post){
+                return next({
+                    msg: 'post not found',
+                    status: 404
+                })
+            }
+            followerModel.findOne({
+                user: req.user.id
+            }, function(err,follower){
+                if(err){
+                    return next(err)
+                }
+                if(!follower){
+                    return next({
+                        msg: 'User not found',
+                        status: 404
+                    })
+                }
+                let data = [];
+                follower.following.forEach(user => {
+                    post.forEach(post=> {
+                        if(post.user = user.user){
+                            data.push(post)
+                        }
+                    })
+                    // return data;
+                })
+                res.json({
+                    msg: data,
+                    status: 200
+                })
+            })
+        })
+    }
+
 function removePost(req,res,next){
     postsModel.findById(req.params.id, function(err,post){
         if(err){
@@ -97,7 +138,7 @@ function removePost(req,res,next){
                 status: 404
             })
         }
-        // Post found
+        A// Post found
         if(post.user != req.user.id){
             return next({
                msg: 'only original creator can delete their post',
@@ -119,4 +160,5 @@ module.exports = {
     update,
     getPostFromPublicUser,
     removePost,
+    getPostFromFollowingUser
 }

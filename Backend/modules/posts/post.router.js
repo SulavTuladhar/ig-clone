@@ -5,6 +5,8 @@ const postController = require('./post.controller');
 
 router.route('/')
     .get(postController.getPostFromPublicUser);
+router.route('/following')
+    .get(authenticate, postController.getPostFromFollowingUser)
 router.route('/createPost')
     .post(authenticate,upload.array('images'), postController.createPost);
 router.route('/:id')
