@@ -3,30 +3,46 @@ const fs = require('fs');
 const path = require('path');
 const userModel = require('../../models/user.model');
 const MAP_USER_REQ = require('../../helpers/map_user_req');
+const followerModel = require('../../models/follower.model');
 
 // Escape regex (for fuzzy search purpose)
 function escapeRegex(text){
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 }
 
-function getAllUsers(req,res,next){
-    var condition = {};
-    userModel.find(condition)   
-        .sort({
-            _id: -1
-        })
-        .exec(function(err,users){
-            if(err){
-                return next(err)
-            }
-            res.json(users)
-        })
-}
+// function getAllUsers(req,res,next){
+//     var condition = {};
+//     userModel.find(condition)   
+//         .sort({
+//             _id: -1
+//         })
+//         .exec(function(err,users){
+//             if(err){
+//                 return next(err)
+//             }
+//             res.json(users)
+//         })
+// }
 
 function profile(req,res,next){
-    console.log("me here?");
-    res.json({
-        user: req.user
+    followerModel.findOne({
+        user: req.user.id
+    },function(err,followers){
+        if(err){
+            return next(err)
+        }
+        if(!followers){
+            return next({
+                msg: 'Followers not found',
+                satus: 404
+            })
+        }
+        followerCount = followers.following.length
+        res.json({
+            user: req.user,
+            followingCount: followers.following.length,
+            followerCount: followers.followers.length
+        })
     })
 }
 
@@ -42,7 +58,6 @@ function updateUser(req,res,next){
     if(req.file){
         data.image = req.file.filename;
     }
-    // console.log('req user ko id >. ', req.user.id);
     // res.json({msg:"Stupid"})
     userModel.findById(req.user.id,function(err,user){
         if(err){
@@ -113,7 +128,7 @@ function findByUsername(req,res,next){
 }
 
 module.exports = {
-    getAllUsers,
+    // getAllUsers,
     profile,
     updateUser,
     searchUser,

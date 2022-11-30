@@ -8,8 +8,8 @@ router.route('/')
     .put(authenticate, upload.single('image'), userController.updateUser)
     
     
-router.route('/getAllUser')
-    .get(userController.getAllUsers)
+// router.route('/getAllUser')
+//     .get(userController.getAllUsers)
     
 router.route('/search/:username')
     .get(userController.searchUser)
