@@ -1,4 +1,5 @@
 const followerModel = require("../../models/follower.model");
+const userModel = require("../../models/user.model");
 
 function getFollower(req,res,next){
     followerModel.findOne({
@@ -7,19 +8,91 @@ function getFollower(req,res,next){
         if(err){
             return next(err)
         }
-        if(!follower){
+        if(!follower.followers || follower.followers.length == 0){
             return next({
                 msg: 'Follower not found',
                 status: 404
             })
         }
-        res.json({
-            msg: follower
+        let followerIds = [];
+        follower.followers.forEach(follower=> {
+            followerIds.push(follower.user)
+        })
+        userModel.find({
+            '_id' : {
+                $in: followerIds
+            }
+        },function(err,users){
+            if(err){
+                return next(err)
+            }
+            let followers = [];
+            users.forEach(user => {
+                let follower = {
+                    username: user.username,
+                    name: user.username,
+                    profilePicture: user.profilePicture
+                }
+                followers.push(follower)
+            })
+            res.json({
+                msg: followers,
+                length: followers.length
+            })
         })
     })
 }
 
+
+function getFollowing(req,res,next){
+    followerModel.findOne({
+        user:req.user.id,
+    }, function(err,following){
+        if(err){
+            return next(err)
+        }
+        if(!following.following || following.following.length == 0){
+            return next({
+                msg: 'Follower not found',
+                status: 404
+            })
+        }
+        let followingIds = [];
+        following.following.forEach(following=> {
+            followingIds.push(following.user)
+        })
+        userModel.find({
+            '_id' : {
+                $in: followingIds
+            }
+        },function(err,users){
+            if(err){
+                return next(err)
+            }
+            let following = [];
+            users.forEach(user => {
+                let followingUser = {
+                    username: user.username,
+                    name: user.username,
+                    profilePicture: user.profilePicture
+                }
+                following.push(followingUser)
+            })
+            res.json({
+                msg: following,
+                length: following.length
+            })
+        })
+    })
+}
+
+
 function addFollower(req,res,next){
+    if(req.user.id === req.body.id){
+        return next({
+            msg: 'You can not follow yourself'
+        })
+    }
     followerModel.findOne({
         user: req.user.id
     },function(err,follower){
@@ -178,6 +251,7 @@ function unFollow(req,res,next){
 
 module.exports = {
     getFollower,
+    getFollowing,
     addFollower,
     unFollow
 }

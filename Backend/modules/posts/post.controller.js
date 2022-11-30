@@ -117,7 +117,6 @@ function getPostFromFollowingUser(req,res,next){
                             data.push(post)
                         }
                     })
-                    // return data;
                 })
                 res.json({
                     msg: data,
