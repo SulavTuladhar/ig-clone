@@ -86,6 +86,53 @@ function getFollowing(req,res,next){
     })
 }
 
+function addToPending(req,res,next){
+    followerModel.findOne({
+        user: req.user.id
+    },function(err,follower){
+        if(err=> next(err))
+        if(!follower){
+            const pendingData = {
+                user: req.user.id,
+                pending: [
+                    {
+                        user: req.body.id
+                    }
+                ]
+            }
+            follower.create(pendingData)
+                .then(res=> {
+                    res.json({
+                        msg: res.pending,
+                        status: 200
+                    })
+                })
+                .catch(err=> {
+                    console.log('Error while creating pending Data >> ', err);
+                })
+        }else{
+            const indexFound = follower.following.findIndex(
+                (following) => following.user == req.body.id
+            )
+            if(indexFound !== -1){
+                res.json({
+                    msg: "already following"
+                })
+            }else{
+                follower.pending.push({
+                    user: req.body.id
+                })
+                follower.save()
+                    .then(saved =>{
+                        res.json({
+                            msg: saved.pending,
+                            status: 200
+                        })
+                    })
+            }
+        }
+    })
+}
 
 function addFollower(req,res,next){
     if(req.user.id === req.body.id){
@@ -130,7 +177,8 @@ function addFollower(req,res,next){
                                 user: req.user.id
                             })
                             followingSide.save()
-                                .then(saved => {console.log(saved)})
+                                .then(saved => {
+                                })
                                 .catch(err=> {console.log(err);})
                         }
                     }else{
@@ -143,7 +191,9 @@ function addFollower(req,res,next){
                             ]
                         }
                         followerModel.create(followingSideData)
-                            .then(data=> {console.log(err)})
+                            .then(data=> {
+                                console.log('Follower inside saved is like this >>> ', follower);
+                            })
                             .catch(err => {console.log(err)})
                     }
                     data
@@ -189,7 +239,8 @@ function addFollower(req,res,next){
                         ]
                     }
                     followerModel.create(followingSideData)
-                        .then(data => {console.log(data)})
+                        .then(data => {
+                        })
                         .catch(err=> {console.log(err)})
                 }
             })
@@ -251,6 +302,7 @@ function unFollow(req,res,next){
 
 module.exports = {
     getFollower,
+    addToPending,
     getFollowing,
     addFollower,
     unFollow

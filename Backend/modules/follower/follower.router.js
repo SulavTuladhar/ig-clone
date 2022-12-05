@@ -8,5 +8,7 @@ router.route('/')
     .delete(authenticate, followerController.unFollow)
 router.route('/following')
     .get(authenticate, followerController.getFollowing)
+router.route('/pending')
+    .post(authenticate, followerController.addToPending)
 
 module.exports = router;

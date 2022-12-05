@@ -20,9 +20,7 @@ const FollowerSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
                 username: String
-            },
-            username: String,
-            profilePicutre: String
+            }
         }
     ],
     following: [
@@ -30,9 +28,7 @@ const FollowerSchema = new mongoose.Schema({
             user: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
-            },
-            username: String,
-            profilePicture: String
+            }
         }
     ]
 })
